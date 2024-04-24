@@ -3,6 +3,25 @@ import { getTasks, createNewTask, patchTask, deleteTask } from './utils/taskFunc
 // TASK: import initialData
 import { initialData } from './initialData.js';
 
+// Function to save updated task details to localStorage
+function saveUpdatedTaskToLocalStorage(updatedTask) {
+  // Retrieve existing tasks from localStorage
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+  // Find the index of the task to update
+  const taskIndex = tasks.findIndex(task => task.id === updatedTask.id);
+
+  // If the task exists, update it; otherwise, add it as a new task
+  if (taskIndex !== -1) {
+    tasks[taskIndex] = updatedTask;
+  } else {
+    tasks.push(updatedTask);
+  }
+
+  // Save the updated tasks back to localStorage
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
 // Function checks if local storage already has data, if not it loads initialData to localStorage
 function initializeData() {
   if (!localStorage.getItem('tasks')) {
@@ -253,6 +272,7 @@ function addTask(event) {
   const newTask = createNewTask(task);
   if (newTask) {
     addTaskToUI(newTask);
+    saveUpdatedTaskToLocalStorage(newTask); // Save the new task to local storage
     toggleModal(false);
     elements.filterDiv.style.display = 'none';
     event.target.reset();
@@ -332,6 +352,7 @@ function saveTaskChanges(taskId) {
 
   // Update task using a helper function
   patchTask(updatedTask); 
+  saveUpdatedTaskToLocalStorage(updatedTask); // Save the updated task to local storage
 
   // Close the modal
   toggleModal(false, elements.editTaskModalWindow);
@@ -400,4 +421,3 @@ function addTaskToDoneColumn(task) {
 
   doneColumn.appendChild(taskElement);
 }
-
